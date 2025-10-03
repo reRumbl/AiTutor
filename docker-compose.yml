@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+    n8n:
+        image: docker.n8n.io/n8nio/n8n
+        container_name: n8n-orchestrator
+        environment:
+            - N8N_HOST=${N8N_HOST}
+            - N8N_PROTOCOL=http
+            - N8N_PORT=5678
+            - DB_TYPE=postgresdb
+            - DB_POSTGRESDB_HOST=postgres
+            - DB_POSTGRESDB_DATABASE=${POSTGRES_DB}
+            - DB_POSTGRESDB_USER=${POSTGRES_USER}
+            - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
+        ports:
+            - '5678:5678'
+        volumes:
+            - n8n_data:/home/node/.n8n
+        depends_on:
+            - postgres
+
+    postgres:
+        image: postgres:latest
+        container_name: postgres-db
+        environment:
+            - POSTGRES_DB=${POSTGRES_DB}
+            - POSTGRES_USER=${POSTGRES_USER}
+            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+        volumes:
+            - pg_data:/var/lib/postgresql/data
+        # Порт можно не открывать, так как n8n обращается к БД по сети Docker
+
+volumes:
+    n8n_data:
+    pg_data:
